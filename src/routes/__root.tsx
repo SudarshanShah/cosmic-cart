@@ -73,7 +73,13 @@ function NavBar() {
 					Toys
 				</Link>
 				<span className="ml-auto rounded-full bg-pink-600 px-3 py-1 text-sm font-semibold">
-					Cart: {itemCount}
+					<Link
+						to="/cart"
+						className="ml-auto rounded-full bg-pink-600 px-3 py-1 text-sm font-semibold hover:bg-pink-500 transition"
+						activeProps={{ className: "bg-pink-500" }}
+					>
+						Cart: {itemCount}
+					</Link>
 				</span>
 			</div>
 		</nav>
