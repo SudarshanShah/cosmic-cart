@@ -19,6 +19,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ToysRouteImport } from './routes/toys'
 import { Route as ComicsComicIdRouteImport } from './routes/comics_.$comicId'
 import { Route as GamesGameIdRouteImport } from './routes/games_.$gameId'
+import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
 import { Route as ToysToyIdRouteImport } from './routes/toys_.$toyId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -72,6 +73,11 @@ const GamesGameIdRoute = GamesGameIdRouteImport.update({
   path: '/games/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToysToyIdRoute = ToysToyIdRouteImport.update({
   id: '/toys_/$toyId',
   path: '/toys/$toyId',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/toys': typeof ToysRoute
   '/comics/$comicId': typeof ComicsComicIdRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/toys/$toyId': typeof ToysToyIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/toys': typeof ToysRoute
   '/comics/$comicId': typeof ComicsComicIdRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/toys/$toyId': typeof ToysToyIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/toys': typeof ToysRoute
   '/comics_/$comicId': typeof ComicsComicIdRoute
   '/games_/$gameId': typeof GamesGameIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
   '/toys_/$toyId': typeof ToysToyIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/toys'
     | '/comics/$comicId'
     | '/games/$gameId'
+    | '/orders/$orderId'
     | '/toys/$toyId'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/toys'
     | '/comics/$comicId'
     | '/games/$gameId'
+    | '/orders/$orderId'
     | '/toys/$toyId'
     | '/api/auth/$'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/toys'
     | '/comics_/$comicId'
     | '/games_/$gameId'
+    | '/orders/$orderId'
     | '/toys_/$toyId'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   ToysRoute: typeof ToysRoute
   ComicsComicIdRoute: typeof ComicsComicIdRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
+  OrdersOrderIdRoute: typeof OrdersOrderIdRoute
   ToysToyIdRoute: typeof ToysToyIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/toys_/$toyId': {
       id: '/toys_/$toyId'
       path: '/toys/$toyId'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToysRoute: ToysRoute,
   ComicsComicIdRoute: ComicsComicIdRoute,
   GamesGameIdRoute: GamesGameIdRoute,
+  OrdersOrderIdRoute: OrdersOrderIdRoute,
   ToysToyIdRoute: ToysToyIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

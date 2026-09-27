@@ -37,6 +37,23 @@ export const cartItems = pgTable('cart_items', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+export const orders = pgTable('orders', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  total: doublePrecision('total').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const orderItems = pgTable('order_items', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  itemType: text('item_type', { enum: ['comic', 'game', 'toy'] }).notNull(),
+  itemId: text('item_id').notNull(),
+  title: text('title').notNull(),
+  price: doublePrecision('price').notNull(),
+  quantity: integer('quantity').notNull(),
+})
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

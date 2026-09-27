@@ -41,6 +41,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 	shellComponent: RootDocument,
+	notFoundComponent: () => (
+		<div className="min-h-screen bg-gray-950 flex items-center justify-center p-8 text-gray-100">
+			<div className="text-center">
+				<h1 className="text-4xl font-extrabold text-pink-400">Nothing here</h1>
+				<p className="mt-2 text-gray-400">
+					This page doesn't exist, or you don't have access to it.
+				</p>
+				<Link
+					to="/"
+					className="mt-6 inline-block text-purple-400 hover:underline"
+				>
+					← Back to home
+				</Link>
+			</div>
+		</div>
+	),
 });
 
 function NavBar() {

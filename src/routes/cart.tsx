@@ -1,10 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSelector } from "@tanstack/react-store";
-import {
-	getServerCart,
-	updateServerCartQuantity,
-} from "#/functions/cart";
+import { useState } from "react";
+import { getServerCart, updateServerCartQuantity } from "#/functions/cart";
+import { placeOrder } from "#/functions/orders";
 import { authClient } from "#/lib/auth-client";
 import { cartStore } from "#/stores/cart";
 
@@ -14,6 +13,10 @@ function CartPage() {
 	const { data: session } = authClient.useSession();
 	const queryClient = useQueryClient();
 	const localItems = useSelector(cartStore, (items) => items);
+
+	const navigate = useNavigate();
+	const [placing, setPlacing] = useState(false);
+	const [orderError, setOrderError] = useState("");
 
 	const { data: serverItems } = useQuery({
 		queryKey: ["cart"],
@@ -67,6 +70,21 @@ function CartPage() {
 			queryClient.invalidateQueries({ queryKey: ["cart"] });
 		} else {
 			cartStore.actions.setQuantity(itemType, itemId, newQuantity);
+		}
+	}
+
+	async function handlePlaceOrder() {
+		setPlacing(true);
+		setOrderError("");
+		try {
+			const result = await placeOrder();
+			queryClient.invalidateQueries({ queryKey: ["cart"] });
+			navigate({ to: "/orders/$orderId", params: { orderId: result.orderId } });
+		} catch (err) {
+			setOrderError(
+				err instanceof Error ? err.message : "Something went wrong",
+			);
+			setPlacing(false);
 		}
 	}
 
@@ -138,8 +156,34 @@ function CartPage() {
 				))}
 
 				<div className="flex justify-between border-t border-gray-800 pt-4 text-lg font-bold">
-					<span>Total</span>
-					<span>${total.toFixed(2)}</span>
+					<div className="border-t border-gray-800 pt-4">
+						<div className="flex justify-between text-lg font-bold">
+							<span>Total</span>
+							<span>${total.toFixed(2)}</span>
+						</div>
+
+						{orderError && (
+							<p className="mt-2 text-sm text-red-400">{orderError}</p>
+						)}
+
+						<button
+							type="button"
+							onClick={handlePlaceOrder}
+							disabled={placing || !session}
+							className="mt-4 w-full rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition disabled:opacity-50"
+						>
+							{placing ? "Placing order..." : "Place Order"}
+						</button>
+
+						{!session && (
+							<p className="mt-2 text-center text-sm text-gray-400">
+								<Link to="/login" className="text-purple-400 hover:underline">
+									Log in
+								</Link>{" "}
+								to check out.
+							</p>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>
