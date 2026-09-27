@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useSelector } from "@tanstack/react-store";
+import { PageLoader } from "#/components/PageLoader";
 import { getServerCart } from "#/functions/cart";
 import { authClient } from "#/lib/auth-client";
 import { cartStore } from "#/stores/cart";
@@ -57,6 +58,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			</div>
 		</div>
 	),
+	pendingComponent: PageLoader,
+	pendingMs: 300, // wait 300ms before showing the loader...
+	pendingMinMs: 500, // ...but once shown, keep it for at least 500ms
 });
 
 function NavBar() {

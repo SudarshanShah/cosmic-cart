@@ -1,16 +1,20 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { Spinner } from "#/components/Spinner";
+import type { getServerCart } from "#/functions/cart";
 import { addToServerCart } from "#/functions/cart";
 import { getToyById } from "#/functions/toys";
 import { authClient } from "#/lib/auth-client";
 import { cartStore } from "#/stores/cart";
 
+type ServerCartItem = Awaited<ReturnType<typeof getServerCart>>[number];
+
 export const Route = createFileRoute("/toys_/$toyId")({
 	loader: async ({ params }) => {
 		try {
-			return await getToyById({data: params.toyId})
+			return await getToyById({ data: params.toyId });
 		} catch {
-			throw notFound()
+			throw notFound();
 		}
 	},
 	component: ToyDetail,
@@ -21,14 +25,52 @@ function ToyDetail() {
 	const { data: session } = authClient.useSession();
 	const queryClient = useQueryClient();
 
+	const addToCart = useMutation({
+		mutationFn: () =>
+			addToServerCart({ data: { itemType: "toy", itemId: toy.id } }),
+		onMutate: async () => {
+			await queryClient.cancelQueries({ queryKey: ["cart"] });
+			const previousCart = queryClient.getQueryData<ServerCartItem[]>(["cart"]);
+
+			queryClient.setQueryData<ServerCartItem[]>(["cart"], (old = []) => {
+				const existing = old.find(
+					(i) => i.itemType === "toy" && i.itemId === toy.id,
+				);
+				if (existing) {
+					return old.map((i) =>
+						i === existing ? { ...i, quantity: i.quantity + 1 } : i,
+					);
+				}
+				return [
+					...old,
+					{
+						cartItemId: `optimistic-${toy.id}`,
+						itemType: "toy" as const,
+						itemId: toy.id,
+						title: toy.title,
+						price: toy.price,
+						quantity: 1,
+					},
+				];
+			});
+
+			return { previousCart };
+		},
+		onError: (_err, _vars, context) => {
+			queryClient.setQueryData(["cart"], context?.previousCart);
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["cart"] });
+		},
+	});
+
 	async function handleAddToCart() {
 		if (session) {
-			await addToServerCart({ data: { itemType: "toy", itemId: toy.id } });
-			queryClient.invalidateQueries({ queryKey: ["cart"] });
+			addToCart.mutate();
 		} else {
 			cartStore.actions.addItem({
-				itemId: toy.id,
 				itemType: "toy",
+				itemId: toy.id,
 				title: toy.title,
 				price: toy.price,
 			});
@@ -46,9 +88,14 @@ function ToyDetail() {
 				<button
 					type="button"
 					onClick={handleAddToCart}
-					className="mt-8 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition"
+					disabled={addToCart.isPending}
+					className="mt-8 flex w-40 items-center justify-center gap-2 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed"
 				>
-					Add to Cart
+					{addToCart.isPending ? (
+						<Spinner className="h-4 w-4" />
+					) : (
+						"Add to Cart"
+					)}
 				</button>
 			</div>
 		</div>

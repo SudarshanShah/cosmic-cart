@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "#/db/client";
 import { cartItems, comics, games, toys } from "#/db/schema";
 import { requireAuth } from "#/lib/get-session";
@@ -13,7 +13,8 @@ export const getServerCart = createServerFn().handler(async () => {
 	const rows = await db
 		.select()
 		.from(cartItems)
-		.where(eq(cartItems.userId, session.user.id));
+		.where(eq(cartItems.userId, session.user.id))
+		.orderBy(asc(cartItems.createdAt));
 
 	// Enrich each cart row with its product details from the right table
 	const enriched = await Promise.all(
