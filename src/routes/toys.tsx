@@ -35,14 +35,14 @@ function ToysPage() {
 
 				<div className="flex gap-2">
 					<Link
-						to="/games"
+						to="/toys"
 						search={{ sort: "title" }}
 						className={`rounded-lg px-3 py-1.5 text-sm transition ${sort === "title" ? "bg-purple-600 text-white" : "bg-gray-900 text-gray-400 hover:text-gray-200"}`}
 					>
 						Name
 					</Link>
 					<Link
-						to="/games"
+						to="/toys"
 						search={{ sort: "price" }}
 						className={`rounded-lg px-3 py-1.5 text-sm transition ${sort === "price" ? "bg-purple-600 text-white" : "bg-gray-900 text-gray-400 hover:text-gray-200"}`}
 					>
