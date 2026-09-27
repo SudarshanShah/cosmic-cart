@@ -9,7 +9,7 @@
     "dev": "vite dev --port 8000",
     "generate-routes": "tsr generate",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
+    "start": "srvx --prod -s ../client dist/server/server.js",
     "preview": "vite preview",
     "format": "biome format",
     "lint": "biome lint",
@@ -30,6 +30,7 @@
     "postgres": "^3.4.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "srvx": "^1.0.5",
     "tailwindcss": "^4.1.18",
     "zod": "^4.6.5"
   },
