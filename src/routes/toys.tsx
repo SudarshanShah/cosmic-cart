@@ -1,29 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { getToys } from "#/functions/toys";
 
-export const Route = createFileRoute("/toys")({ component: ToysPage });
-
-const toys = [
-	{
-		id: "t1",
-		title: "Galaxy Blaster",
-		price: 19.99,
-		tagline: "Foam darts, cosmic style.",
-	},
-	{
-		id: "t2",
-		title: "Mecha Buddy",
-		price: 34.99,
-		tagline: "A collectible transforming robot pal.",
-	},
-	{
-		id: "t3",
-		title: "Starlight Plush",
-		price: 14.99,
-		tagline: "Soft, glowing, impossibly cute.",
-	},
-];
+export const Route = createFileRoute("/toys")({ 
+	loader: async () => await getToys(),
+	component: ToysPage 
+});
 
 function ToysPage() {
+	const toys = Route.useLoaderData()
+
 	return (
 		<div className="min-h-screen bg-gray-950 p-8 text-gray-100">
 			<h1 className="text-4xl font-extrabold text-orange-400">Toys</h1>

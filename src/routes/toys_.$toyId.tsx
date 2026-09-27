@@ -1,43 +1,39 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-
-const toysData = [
-	{
-		id: "t1",
-		title: "Galaxy Blaster",
-		price: 19.99,
-		tagline: "Foam darts, cosmic style.",
-		description:
-			"A hand-cranked blaster with glow-in-the-dark darts and a satisfying thunk. Ages 6+.",
-	},
-	{
-		id: "t2",
-		title: "Mecha Buddy",
-		price: 34.99,
-		tagline: "A collectible transforming robot pal.",
-		description:
-			"Twelve points of articulation and a transform sequence that takes way longer than it should — in a good way.",
-	},
-	{
-		id: "t3",
-		title: "Starlight Plush",
-		price: 14.99,
-		tagline: "Soft, glowing, impossibly cute.",
-		description:
-			"A plush star with a soft internal LED that pulses gently. Battery included, hugs guaranteed.",
-	},
-];
+import { addToServerCart } from "#/functions/cart";
+import { getToyById } from "#/functions/toys";
+import { authClient } from "#/lib/auth-client";
+import { cartStore } from "#/stores/cart";
 
 export const Route = createFileRoute("/toys_/$toyId")({
 	loader: async ({ params }) => {
-		const toy = toysData.find((t) => t.id === params.toyId);
-		if (!toy) throw notFound();
-		return toy;
+		try {
+			return await getToyById({data: params.toyId})
+		} catch {
+			throw notFound()
+		}
 	},
 	component: ToyDetail,
 });
 
 function ToyDetail() {
 	const toy = Route.useLoaderData();
+	const { data: session } = authClient.useSession();
+	const queryClient = useQueryClient();
+
+	async function handleAddToCart() {
+		if (session) {
+			await addToServerCart({ data: { itemType: "toy", itemId: toy.id } });
+			queryClient.invalidateQueries({ queryKey: ["cart"] });
+		} else {
+			cartStore.actions.addItem({
+				itemId: toy.id,
+				itemType: "toy",
+				title: toy.title,
+				price: toy.price,
+			});
+		}
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-950 p-8 text-gray-100">
@@ -47,6 +43,13 @@ function ToyDetail() {
 					${toy.price.toFixed(2)}
 				</p>
 				<p className="mt-6 text-gray-300 leading-relaxed">{toy.description}</p>
+				<button
+					type="button"
+					onClick={handleAddToCart}
+					className="mt-8 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition"
+				>
+					Add to Cart
+				</button>
 			</div>
 		</div>
 	);

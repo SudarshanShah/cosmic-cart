@@ -10,17 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ComicsRouteImport } from './routes/comics'
 import { Route as GamesRouteImport } from './routes/games'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ToysRouteImport } from './routes/toys'
 import { Route as ComicsComicIdRouteImport } from './routes/comics_.$comicId'
 import { Route as GamesGameIdRouteImport } from './routes/games_.$gameId'
 import { Route as ToysToyIdRouteImport } from './routes/toys_.$toyId'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -36,6 +45,16 @@ const ComicsRoute = ComicsRouteImport.update({
 const GamesRoute = GamesRouteImport.update({
   id: '/games',
   path: '/games',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToysRoute = ToysRouteImport.update({
@@ -58,80 +77,113 @@ const ToysToyIdRoute = ToysToyIdRouteImport.update({
   path: '/toys/$toyId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/cart': typeof CartRoute
   '/comics': typeof ComicsRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/toys': typeof ToysRoute
   '/comics/$comicId': typeof ComicsComicIdRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/toys/$toyId': typeof ToysToyIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/cart': typeof CartRoute
   '/comics': typeof ComicsRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/toys': typeof ToysRoute
   '/comics/$comicId': typeof ComicsComicIdRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/toys/$toyId': typeof ToysToyIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/cart': typeof CartRoute
   '/comics': typeof ComicsRoute
   '/games': typeof GamesRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/toys': typeof ToysRoute
   '/comics_/$comicId': typeof ComicsComicIdRoute
   '/games_/$gameId': typeof GamesGameIdRoute
   '/toys_/$toyId': typeof ToysToyIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/cart'
     | '/comics'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/toys'
     | '/comics/$comicId'
     | '/games/$gameId'
     | '/toys/$toyId'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/cart'
     | '/comics'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/toys'
     | '/comics/$comicId'
     | '/games/$gameId'
     | '/toys/$toyId'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/cart'
     | '/comics'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/toys'
     | '/comics_/$comicId'
     | '/games_/$gameId'
     | '/toys_/$toyId'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   CartRoute: typeof CartRoute
   ComicsRoute: typeof ComicsRoute
   GamesRoute: typeof GamesRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   ToysRoute: typeof ToysRoute
   ComicsComicIdRoute: typeof ComicsComicIdRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
   ToysToyIdRoute: typeof ToysToyIdRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -162,6 +221,20 @@ declare module '@tanstack/react-router' {
       path: '/games'
       fullPath: '/games'
       preLoaderRoute: typeof GamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/toys': {
@@ -192,18 +265,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToysToyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   CartRoute: CartRoute,
   ComicsRoute: ComicsRoute,
   GamesRoute: GamesRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
   ToysRoute: ToysRoute,
   ComicsComicIdRoute: ComicsComicIdRoute,
   GamesGameIdRoute: GamesGameIdRoute,
   ToysToyIdRoute: ToysToyIdRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

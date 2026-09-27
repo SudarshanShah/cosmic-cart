@@ -1,5 +1,6 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
@@ -8,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useSelector } from "@tanstack/react-store";
+import { getServerCart } from "#/functions/cart";
+import { authClient } from "#/lib/auth-client";
 import { cartStore } from "#/stores/cart";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
@@ -27,7 +30,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Cosmic Cart",
 			},
 		],
 		links: [
@@ -41,9 +44,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function NavBar() {
-	const itemCount = useSelector(cartStore, (items) =>
+	const localItemCount = useSelector(cartStore, (items) =>
 		items.reduce((sum, i) => sum + i.quantity, 0),
 	);
+	const { data: session } = authClient.useSession();
+
+	const { data: serverCart } = useQuery({
+		queryKey: ["cart"],
+		queryFn: () => getServerCart(),
+		enabled: !!session, // only fetch when logged in
+	});
+
+	const itemCount = session
+		? (serverCart?.reduce((sum, i) => sum + i.quantity, 0) ?? 0)
+		: localItemCount;
 
 	return (
 		<nav className="sticky top-0 z-10 border-b border-gray-800 bg-gray-950/90 backdrop-blur">
@@ -72,15 +86,31 @@ function NavBar() {
 				>
 					Toys
 				</Link>
-				<span className="ml-auto rounded-full bg-pink-600 px-3 py-1 text-sm font-semibold">
-					<Link
-						to="/cart"
-						className="ml-auto rounded-full bg-pink-600 px-3 py-1 text-sm font-semibold hover:bg-pink-500 transition"
-						activeProps={{ className: "bg-pink-500" }}
+
+				{session ? (
+					<button
+						type="button"
+						onClick={() => authClient.signOut()}
+						className="text-gray-300 hover:text-red-400 transition"
 					>
-						Cart: {itemCount}
+						Log Out ({session.user.name})
+					</button>
+				) : (
+					<Link
+						to="/login"
+						className="text-gray-300 hover:text-pink-400 transition"
+					>
+						Log In
 					</Link>
-				</span>
+				)}
+
+				<Link
+					to="/cart"
+					className="ml-auto rounded-full bg-pink-600 px-3 py-1 text-sm font-semibold hover:bg-pink-500 transition"
+					activeProps={{ className: "bg-pink-500" }}
+				>
+					Cart: {itemCount}
+				</Link>
 			</div>
 		</nav>
 	);

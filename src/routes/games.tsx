@@ -1,29 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { getGames } from "#/functions/games";
 
-export const Route = createFileRoute("/games")({ component: GamesPage });
+export const Route = createFileRoute("/games") ({
+	loader: async () => await getGames(),
+	component: GamesPage
+});
 
-const games = [
-	{
-		id: "g1",
-		title: "Nebula Drift",
-		price: 39.99,
-		tagline: "A racing game across dying stars.",
-	},
-	{
-		id: "g2",
-		title: "Ashen Keep",
-		price: 49.99,
-		tagline: "A dark-fantasy survival roguelike.",
-	},
-	{
-		id: "g3",
-		title: "Pixel Legion",
-		price: 24.99,
-		tagline: "Retro tactics, modern chaos.",
-	},
-];
 
 function GamesPage() {
+	const games = Route.useLoaderData();
+
 	return (
 		<div className="min-h-screen bg-gray-950 p-8 text-gray-100">
 			<h1 className="text-4xl font-extrabold text-blue-400">Games</h1>

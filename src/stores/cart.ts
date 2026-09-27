@@ -1,7 +1,8 @@
 import { createStore } from "@tanstack/react-store";
 
 export type CartItem = {
-	id: string;
+	itemType: "comic" | "game" | "toy";
+	itemId: string;
 	title: string;
 	price: number;
 	quantity: number;
@@ -27,21 +28,51 @@ function persist(items: CartItem[]) {
 export const cartStore = createStore(loadInitialCart(), ({ setState }) => ({
 	addItem: (item: Omit<CartItem, "quantity">) => {
 		setState((items) => {
-			const existing = items.find((i) => i.id === item.id);
-			const updatedItems = existing
+			const existing = items.find(
+				(i) => i.itemType === item.itemType && i.itemId === item.itemId,
+			);
+			const next = existing
 				? items.map((i) =>
-						i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+						i.itemType === item.itemType && i.itemId === item.itemId
+							? { ...i, quantity: i.quantity + 1 }
+							: i,
 					)
 				: [...items, { ...item, quantity: 1 }];
-			persist(updatedItems);
-			return updatedItems;
+			persist(next);
+			return next;
 		});
 	},
-	removeItem: (id: string) => {
+	removeItem: (itemType: CartItem["itemType"], itemId: string) => {
 		setState((items) => {
-			const updatedItems = items.filter((i) => i.id !== id);
-			persist(updatedItems);
-			return updatedItems;
+			const next = items.filter(
+				(i) => !(i.itemType === itemType && i.itemId === itemId),
+			);
+			persist(next);
+			return next;
 		});
+	},
+	setQuantity: (
+		itemType: CartItem["itemType"],
+		itemId: string,
+		quantity: number,
+	) => {
+		setState((items) => {
+			const next =
+				quantity < 1
+					? items.filter(
+							(i) => !(i.itemType === itemType && i.itemId === itemId),
+						)
+					: items.map((i) =>
+							i.itemType === itemType && i.itemId === itemId
+								? { ...i, quantity }
+								: i,
+						);
+			persist(next);
+			return next;
+		});
+	},
+	clear: () => {
+		setState(() => []);
+		persist([]);
 	},
 }));

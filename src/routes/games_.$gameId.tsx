@@ -1,43 +1,39 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-
-const gamesData = [
-	{
-		id: "g1",
-		title: "Nebula Drift",
-		price: 39.99,
-		tagline: "A racing game across dying stars.",
-		description:
-			"Race across collapsing star systems where the track itself is falling apart beneath you. Every lap is a gamble against physics.",
-	},
-	{
-		id: "g2",
-		title: "Ashen Keep",
-		price: 49.99,
-		tagline: "A dark-fantasy survival roguelike.",
-		description:
-			"The keep remembers every death. Rebuild, fall again, and slowly uncover why the ash never stops falling.",
-	},
-	{
-		id: "g3",
-		title: "Pixel Legion",
-		price: 24.99,
-		tagline: "Retro tactics, modern chaos.",
-		description:
-			"Command a squad of 16-bit soldiers through a war that keeps rewriting its own rules mid-battle.",
-	},
-];
+import { addToServerCart } from "#/functions/cart";
+import { getGameById } from "#/functions/games";
+import { authClient } from "#/lib/auth-client";
+import { cartStore } from "#/stores/cart";
 
 export const Route = createFileRoute("/games_/$gameId")({
 	loader: async ({ params }) => {
-		const game = gamesData.find((g) => g.id === params.gameId);
-		if (!game) throw notFound();
-		return game;
+		try {
+			return await getGameById({data: params.gameId})
+		} catch {
+			throw notFound()
+		}
 	},
 	component: GameDetail,
 });
 
 function GameDetail() {
 	const game = Route.useLoaderData();
+	const { data: session } = authClient.useSession();
+	const queryClient = useQueryClient();
+
+	async function handleAddToCart() {
+		if (session) {
+			await addToServerCart({ data: { itemType: "game", itemId: game.id } });
+			queryClient.invalidateQueries({ queryKey: ["cart"] });
+		} else {
+			cartStore.actions.addItem({
+				itemId: game.id,
+				itemType: "game",
+				title: game.title,
+				price: game.price,
+			});
+		}
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-950 p-8 text-gray-100">
@@ -47,6 +43,13 @@ function GameDetail() {
 					${game.price.toFixed(2)}
 				</p>
 				<p className="mt-6 text-gray-300 leading-relaxed">{game.description}</p>
+				<button
+					type="button"
+					onClick={handleAddToCart}
+					className="mt-8 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition"
+				>
+					Add to Cart
+				</button>
 			</div>
 		</div>
 	);

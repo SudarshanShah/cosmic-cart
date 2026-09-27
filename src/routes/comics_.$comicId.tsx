@@ -1,5 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { addToServerCart } from "#/functions/cart";
 import { getComicById } from "#/functions/comics";
+import { authClient } from "#/lib/auth-client";
 import { cartStore } from "#/stores/cart";
 
 export const Route = createFileRoute("/comics_/$comicId")({
@@ -23,6 +26,22 @@ export const Route = createFileRoute("/comics_/$comicId")({
 
 function ComicDetail() {
 	const comic = Route.useLoaderData();
+	const { data: session } = authClient.useSession();
+	const queryClient = useQueryClient();
+
+	async function handleAddToCart() {
+		if (session) {
+			await addToServerCart({ data: { itemType: "comic", itemId: comic.id } });
+			queryClient.invalidateQueries({ queryKey: ["cart"] });
+		} else {
+			cartStore.actions.addItem({
+				itemId: comic.id,
+				itemType: "comic",
+				title: comic.title,
+				price: comic.price,
+			});
+		}
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-950 p-8 text-gray-100">
@@ -39,13 +58,7 @@ function ComicDetail() {
 
 				<button
 					type="button"
-					onClick={() =>
-						cartStore.actions.addItem({
-							id: comic.id,
-							title: comic.title,
-							price: comic.price,
-						})
-					}
+					onClick={handleAddToCart}
 					className="mt-8 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white hover:bg-pink-500 transition"
 				>
 					Add to Cart
